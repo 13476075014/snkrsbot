@@ -4,7 +4,6 @@ import socket
 import ssl
 import traceback
 import uuid
-
 from WebLogin import WebLogin_Chrome
 
 
@@ -21,6 +20,7 @@ class LoginInit:
         webLogin = WebLogin_Chrome(username, password)
         webLogin.login()
         self.cookies = webLogin.getCookies()
+        print self.cookies
 
     # 获取app登陆请求
     def getLoginRequests(self):
@@ -28,16 +28,16 @@ class LoginInit:
             usr=self.username, pwd=self.password, clientId=self.clientId)
 
         head = '''POST /login?appVersion=454&experienceVersion=375&uxid=com.nike.commerce.snkrs.ios&locale=zh_CN&backendEnvironment=identity&browser=Apple%20Computer%2C%20Inc.&os=undefined&mobile=true&native=true&visit=1&visitor={visitorId} HTTP/1.1
-Host: {host}
-Content-Type: application/json
-Origin: https://{host}
-Cookie: {cookies}
-Content-Length: {length}
-Connection: close
-Accept: */*
-User-Agent: {userAgent}
-Referer: https://s3.nikecdn.com/unite/mobile.html?mid=66794190406425515927935901233201301138?iOSSDKVersion=2.8.4&clientId=G64vA0b95ZruUtGk1K0FkAgaO3Ch30sj&uxId=com.nike.commerce.snkrs.ios&view=none&locale=zh_CN&backendEnvironment=identity
-Accept-Language: zh-cn'''.format(visitorId=self.visitorId, host=self.host, userAgent=self.userAgent,
+                Host: {host}
+                Content-Type: application/json
+                Origin: https://{host}
+                Cookie: {cookies}
+                Content-Length: {length}
+                Connection: close
+                Accept: */*
+                User-Agent: {userAgent}
+                Referer: https://s3.nikecdn.com/unite/mobile.html?mid=66794190406425515927935901233201301138?iOSSDKVersion=2.8.4&clientId=G64vA0b95ZruUtGk1K0FkAgaO3Ch30sj&uxId=com.nike.commerce.snkrs.ios&view=none&locale=zh_CN&backendEnvironment=identity
+                Accept-Language: zh-cn'''.format(visitorId=self.visitorId, host=self.host, userAgent=self.userAgent,
                                  length=len(payload), cookies=self.cookies)
 
         data = head + "\r\n\r\n" + payload
@@ -51,8 +51,7 @@ Accept-Language: zh-cn'''.format(visitorId=self.visitorId, host=self.host, userA
     def sendRequestsToHost(self, data):
         sock = ssl.wrap_socket(socket.socket())
         sock.connect((self.host, 443))
-
-        sock.sendall(bytes(data, encoding='utf-8'))
+        sock.sendall(bytes(data,'utf-8'))
         # recv_data = sock.recv(10240).decode('utf-8')
         result = ""
         while True:
@@ -64,4 +63,9 @@ Accept-Language: zh-cn'''.format(visitorId=self.visitorId, host=self.host, userA
             if not len(recv_data):
                 break
         sock.close()
+        print result
         return result
+
+ceshi=LoginInit(username="15245871026",password="huanxiangmf1Q")
+print ceshi.sendRequestsToHost(data=ceshi.getDataFromResponse(data=ceshi.getLoginRequests()))
+
