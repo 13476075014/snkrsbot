@@ -2,7 +2,7 @@
 import json
 import random
 import traceback
-import requests,time
+import requests
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
@@ -13,33 +13,72 @@ class WebLogin_Chrome:
         self.cookies = None
         self.session = requests.session()
         self.userInfo = None
+
         self.username = username
         self.password = password
 
     def login(self):
-        chromeOptions = webdriver.ChromeOptions()
-        # 无界面
-        # chromeOptions.add_argument('--headless')
-        # 关闭图片
-        prefs = {"profile.managed_default_content_settings.images": 2}
-        chromeOptions.add_experimental_option("prefs", prefs)
-        # 禁用gpu加速
-        chromeOptions.add_argument('--disable-gpu')
-        browser = webdriver.Chrome(chrome_options=chromeOptions)
+        try:
+            chromeOptions = webdriver.ChromeOptions()
+            # 无界面
+            # chromeOptions.add_argument('--headless')
+            # 禁用gpu加速
+            chromeOptions.add_argument('--disable-gpu')
+            # 关闭图片
+            prefs = {"profile.managed_default_content_settings.images": 2}
+            chromeOptions.add_experimental_option("prefs", prefs)
 
-        browser.get("https://www.nike.com/cn/zh_cn/")
-        login = browser.find_element_by_class_name("login-text")
-        login.click()
-        login1 = browser.find_elements_by_tag_name("a")
-        login1[264].click()
-        username = browser.find_element_by_name("emailAddress")
-        username.send_keys("lktop@vip.qq.com")
-        password = browser.find_element_by_name("password")
-        password.send_keys("huanxiangmf1Q")
-        loginbu = browser.find_elements_by_tag_name("input")
-        loginbu[7].click()
-        time.sleep(5)
-        self.cookies = browser.get_cookies()
+            driver = webdriver.Chrome(chrome_options=chromeOptions)
+
+            w_h = driver.get_window_size()
+            width = w_h["width"]
+            height = w_h["height"]
+
+            clickWidth1 = (width - 500) / 2
+            clickWidth2 = width / 2 + 250
+
+            driver.get("https://www.nike.com/cn/zh_cn/")
+            WebDriverWait(driver, 15).until(lambda x: x.find_element_by_class_name('login-text'))
+            driver.find_element_by_class_name('login-text').click()
+
+            # 随机位置点击绕过验证
+            for i in range(random.randint(2, 5)):
+                ActionChains(driver).move_by_offset(clickWidth1,
+                                                    random.randint(0, height)).click().perform()
+                ActionChains(driver).move_by_offset(clickWidth2,
+                                                    random.randint(0, height)).click().perform()
+
+            driver.find_element_by_name('verifyMobileNumber').send_keys(self.username)
+            driver.find_element_by_name('password').send_keys(self.password)
+            driver.find_element_by_class_name('nike-unite-submit-button').click()
+
+            # 随机位置点击绕过验证
+            for i in range(random.randint(2, 5)):
+                ActionChains(driver).move_by_offset(clickWidth1,
+                                                    random.randint(0, height)).click().perform()
+                ActionChains(driver).move_by_offset(clickWidth2,
+                                                    random.randint(0, height)).click().perform()
+            try:
+                WebDriverWait(driver, 5).until_not(
+                    lambda x: x.find_element_by_class_name('exp-join-login').is_displayed())
+            except:
+                # print("等待超时...")
+                pass
+            if not driver.find_element_by_xpath('//*[@id="nike-unite-mobileLoginForm"]/div[1]').is_displayed():
+                WebDriverWait(driver, 10).until_not(
+                    lambda x: x.find_element_by_class_name('exp-join-login').is_displayed())
+
+                self.cookies = driver.get_cookies()
+
+                driver.get("https://unite.nike.com/session.html")
+                userInfo = driver.execute_script(
+                    "return localStorage.getItem('com.nike.commerce.nikedotcom.web.credential');")
+                self.userInfo = json.loads(userInfo)
+        except:
+            traceback.print_exc()
+        finally:
+            driver.close()
+            driver.quit()
 
     def getCookies(self):
         cookies = ""
