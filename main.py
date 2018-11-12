@@ -8,6 +8,7 @@ from multiprocessing import Process
 from multiprocessing import Queue
 
 
+
 def getPostpayLink(productId, shoesLink):
     url = "https://api.nike.com/merch/products/v2/" + productId
     response = requests.get(url).json()
@@ -163,7 +164,9 @@ if __name__ == '__main__':
 
 
     orderQueue = Queue()
-    buy = Process(target=bulkPurchase, args=(orderQueue,))
-    status = Process(target=orderStatus, args=(orderQueue,))
-    buy.start()
-    status.start()
+    #buy = Process(target=bulkPurchase, args=(orderQueue,))
+    #status = Process(target=orderStatus, args=(orderQueue,))
+    #buy.start()
+    #status.start()
+    bulkPurchase(Queue())
+    orderStatus(Queue())
