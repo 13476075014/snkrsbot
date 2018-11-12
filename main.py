@@ -1,12 +1,11 @@
 #coding=utf-8
-from login import *
-import json
+from loginnk import *
 import re
 import requests
-from WebLogin import *
+from WebLoginnk import *
 import threading,sqlite3,time
 from multiprocessing import Process
-from queue import Queue
+from multiprocessing import Queue
 
 
 def getPostpayLink(productId, shoesLink):
@@ -164,8 +163,7 @@ if __name__ == '__main__':
 
 
     orderQueue = Queue()
-    #buy = Process(target=bulkPurchase, args=(orderQueue,))
-    #status = Process(target=orderStatus, args=(orderQueue,))
-    #buy.start()
-    #status.start()
-    bulkPurchase(orderQueue)
+    buy = Process(target=bulkPurchase, args=(orderQueue,))
+    status = Process(target=orderStatus, args=(orderQueue,))
+    buy.start()
+    status.start()
