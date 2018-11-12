@@ -5,7 +5,8 @@ import re
 import requests
 from WebLogin import *
 import threading,sqlite3,time
-from multiprocessing import Process,Queue
+from multiprocessing import Process
+from queue import Queue
 
 
 def getPostpayLink(productId, shoesLink):
@@ -87,7 +88,6 @@ if __name__ == '__main__':
                 # print(paymentToken)
 
                 launchEntrie = app.launchEntrie(paymentToken, priceChecksum)
-
                 userInfo = [refreshToken, launchEntrie["id"], username, password]
                 orderQueue.put(userInfo)
             except:
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             username = user[2]
             password = user[3]
             refreshToken = user[1]
-
+            #print("%s  %s  %s",username,password,refreshToken)
             td.acquire()
             t = threading.Thread(target=buy, args=(refreshToken, username, password))
             t.start()
@@ -164,7 +164,8 @@ if __name__ == '__main__':
 
 
     orderQueue = Queue()
-    buy = Process(target=bulkPurchase, args=(orderQueue,))
-    status = Process(target=orderStatus, args=(orderQueue,))
-    buy.start()
-    status.start()
+    #buy = Process(target=bulkPurchase, args=(orderQueue,))
+    #status = Process(target=orderStatus, args=(orderQueue,))
+    #buy.start()
+    #status.start()
+    bulkPurchase(orderQueue)
