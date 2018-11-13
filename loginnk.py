@@ -318,5 +318,4 @@ class BuySnkrs:
                              "address": self.launchAddress}, "skuId": self.skuId, "channel": "SNKRS",
                 "launchId": self.launchId, "locale": "zh_CN", "priceChecksum": priceChecksum}
         response = requests.post(url, headers=headers, json=data).json()
-        print(response)
         return response
